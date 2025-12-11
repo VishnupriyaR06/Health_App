@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router"; // <-- ADD THIS
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = 40;
@@ -15,6 +16,8 @@ const ITEM_WIDTH = 40;
 export default function Age() {
   const [age, setAge] = useState(28);
   const scrollRef = useRef();
+
+  const router = useRouter(); // <-- INITIALIZE ROUTER
 
   const MIN = 10;
   const MAX = 80;
@@ -26,6 +29,10 @@ export default function Age() {
     if (value >= MIN && value <= MAX) {
       setAge(value);
     }
+  };
+
+  const handleContinue = () => {
+    router.push("/Weight");  // <-- NAVIGATE TO WEIGHT SCREEN
   };
 
   return (
@@ -57,7 +64,9 @@ export default function Age() {
             onScroll={onScroll}
             scrollEventThrottle={16}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: width / 2 - ITEM_WIDTH }}
+            contentContainerStyle={{
+              paddingHorizontal: width / 2 - ITEM_WIDTH,
+            }}
           >
             {Array.from({ length: MAX - MIN + 1 }).map((_, i) => {
               const value = MIN + i;
@@ -79,7 +88,7 @@ export default function Age() {
         </View>
 
         {/* Continue */}
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
 
@@ -90,13 +99,7 @@ export default function Age() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", padding: 20 },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-
+  title: { fontSize: 24, fontWeight: "bold", marginTop: 10 },
   subtitle: {
     textAlign: "center",
     color: "#666",
@@ -104,13 +107,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 13,
   },
-
-  ageNumber: {
-    fontSize: 55,
-    fontWeight: "800",
-    marginTop: 20,
-  },
-
+  ageNumber: { fontSize: 55, fontWeight: "800", marginTop: 20 },
   arrow: {
     width: 0,
     height: 0,
@@ -122,7 +119,6 @@ const styles = StyleSheet.create({
     borderRightColor: "transparent",
     borderBottomColor: "#39C5CC",
   },
-
   rulerBox: {
     width: "100%",
     height: 120,
@@ -130,7 +126,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     justifyContent: "center",
   },
-
   centerLineLeft: {
     position: "absolute",
     left: width / 2 - ITEM_WIDTH / 2,
@@ -138,7 +133,6 @@ const styles = StyleSheet.create({
     width: 2,
     backgroundColor: "#39C5CC",
   },
-
   centerLineRight: {
     position: "absolute",
     left: width / 2 + ITEM_WIDTH / 2,
@@ -146,25 +140,21 @@ const styles = StyleSheet.create({
     width: 2,
     backgroundColor: "#39C5CC",
   },
-
   itemContainer: {
     width: ITEM_WIDTH,
     justifyContent: "center",
     alignItems: "center",
   },
-
   itemText: {
     fontSize: 22,
     color: "#999",
     fontWeight: "600",
   },
-
   selectedText: {
     fontSize: 28,
     color: "#333",
     fontWeight: "800",
   },
-
   button: {
     marginTop: 40,
     width: "90%",
@@ -173,10 +163,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "700",
-  },
+  buttonText: { color: "white", fontSize: 18, fontWeight: "700" },
 });

@@ -8,14 +8,16 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";   // 👈 ADD THIS
 
 export default function Weight() {
+  const router = useRouter();              // 👈 INITIALIZE ROUTER
   const scrollRef = useRef(null);
   const [weight, setWeight] = useState(75);
   const [unit, setUnit] = useState("kg");
 
-  const itemWidth = 20;        // width of each tick (must match tickContainer.width)
-  const max = 200;             // max tick value (0..199 or 1..200 depending on labels)
+  const itemWidth = 20;
+  const max = 200;
   const screenWidth = Dimensions.get("window").width;
 
   const sidePadding = screenWidth / 2 - itemWidth / 2;
@@ -23,10 +25,8 @@ export default function Weight() {
   const onScroll = (event) => {
     const x = event.nativeEvent.contentOffset.x;
     const newValue = Math.round(x / itemWidth);
-    // clamp between 0 and max - 1 (or max if you prefer)
     const clamped = Math.max(0, Math.min(newValue, max - 1));
     setWeight(clamped);
-    // console.log appears in Metro terminal / DevTools
     console.log("Weight selected:", clamped);
   };
 
@@ -34,7 +34,11 @@ export default function Weight() {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ x: weight * itemWidth, animated: false });
     }
-  }, [scrollRef]);
+  }, []);
+
+  const goToHeight = () => {
+    router.push("/Height");   // 👈 MOVES TO HEIGHT SCREEN
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -42,12 +46,13 @@ export default function Weight() {
         <Text style={styles.title}>What Is Your Weight?</Text>
 
         <Text style={styles.subtitle}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         </Text>
-       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-  <Text style={styles.weightNumber}>{weight}</Text>
-  <Text style={{ fontSize: 20, paddingTop:50,padding:10 }}>Kg</Text>
-</View>
+
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.weightNumber}>{weight}</Text>
+          <Text style={{ fontSize: 20, paddingTop: 50, padding: 10 }}>Kg</Text>
+        </View>
 
         <View style={styles.arrow} />
 
@@ -90,9 +95,11 @@ export default function Weight() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.continueButton}>
+        {/* Continue → go to Height page */}
+        <TouchableOpacity style={styles.continueButton} onPress={goToHeight}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
+
       </View>
     </SafeAreaView>
   );
@@ -142,7 +149,7 @@ const styles = StyleSheet.create({
     height: 70,
     backgroundColor: "#39C5CC",
     position: "absolute",
-    top: 300, // tweak if needed to align visually with the scale
+    top: 300,
     zIndex: 15,
   },
 
