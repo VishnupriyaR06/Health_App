@@ -6,6 +6,15 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/Gender")}>
+        <Text style={styles.text}>Gender</Text>
+      </TouchableOpacity>
+
+     <TouchableOpacity style={styles.button} onPress={() => router.push("/Age")}>
+        <Text style={styles.text}>Age</Text>
+      </TouchableOpacity>
+      
       <TouchableOpacity style={styles.button} onPress={() => router.push("/Weight")}>
         <Text style={styles.text}>Weight</Text>
       </TouchableOpacity>
@@ -13,6 +22,8 @@ export default function Index() {
       <TouchableOpacity style={styles.button} onPress={() => router.push("/Height")}>
         <Text style={styles.text}>Height</Text>
       </TouchableOpacity>
+
+       
     </View>
   );
 }
