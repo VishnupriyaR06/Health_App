@@ -8,13 +8,18 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";   // 👈 ADD THIS
+import { useRouter,useLocalSearchParams } from "expo-router";   // 👈 ADD THIS
 
 export default function Weight() {
-  const router = useRouter();              // 👈 INITIALIZE ROUTER
+  const router = useRouter();  
+ 
+  const { gender, age } = useLocalSearchParams();
+
   const scrollRef = useRef(null);
   const [weight, setWeight] = useState(75);
   const [unit, setUnit] = useState("kg");
+  
+
 
   const itemWidth = 20;
   const max = 200;
@@ -37,7 +42,10 @@ export default function Weight() {
   }, []);
 
   const goToHeight = () => {
-    router.push("/Height");   // 👈 MOVES TO HEIGHT SCREEN
+    router.push({
+      pathname:"/Height",
+      params:{gender,age,weight}
+    });   // 👈 MOVES TO HEIGHT SCREEN
   };
 
   return (

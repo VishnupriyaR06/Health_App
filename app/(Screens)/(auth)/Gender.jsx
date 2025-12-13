@@ -3,35 +3,39 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";   // <-- IMPORT ROUTER
-
+import { useLocalSearchParams } from "expo-router";
+ 
 export default function Gender() {
   const [selectedGender, setSelectedGender] = useState(null);
   const router = useRouter(); // <-- INITIALIZE ROUTER
-
+ 
+ 
   const handleSelect = (gender) => {
     setSelectedGender(gender);
   };
+const handleContinue = () => {
+  if (!selectedGender) {
+    alert("Please select a gender");
+    return;
+  }
+ 
+  router.push({
+    pathname: "/Age",
+    params: { gender: selectedGender },
+  });
+};
 
-  const handleContinue = () => {
-    if (!selectedGender) {
-      alert("Please select a gender");
-      return;
-    }
-
-    // Navigate to next screen (example: /age)
-    router.push("/Age"); 
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        
+       
         <Text style={styles.title}>What's Your Gender</Text>
-
+ 
         <Text style={styles.subtitle}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </Text>
-
+ 
         {/* Male */}
         <TouchableOpacity
           style={styles.optionContainer}
@@ -51,7 +55,7 @@ export default function Gender() {
           </View>
           <Text style={styles.label}>Male</Text>
         </TouchableOpacity>
-
+ 
         {/* Female */}
         <TouchableOpacity
           style={styles.optionContainer}
@@ -71,12 +75,12 @@ export default function Gender() {
           </View>
           <Text style={styles.label}>Female</Text>
         </TouchableOpacity>
-
+ 
         {/* Continue Button */}
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
-
+ 
       </View>
     </SafeAreaView>
   );
@@ -85,13 +89,13 @@ export default function Gender() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", padding: 20 },
-
+ 
   title: {
     marginTop: 10,
     fontSize: 24,
     fontWeight: "bold",
   },
-
+ 
   subtitle: {
     textAlign: "center",
     color: "#666",
@@ -99,12 +103,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 13,
   },
-
+ 
   optionContainer: {
     alignItems: "center",
     marginTop: 20,
   },
-
+ 
   genderCircle: {
     width: 150,
     height: 150,
@@ -114,23 +118,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
+ 
   femaleCircle: {
     borderColor: "#39C5CC",
   },
-
+ 
   selectedCircle: {
     backgroundColor: "#39C5CC",
     borderColor: "#39C5CC",
   },
-
+ 
   label: {
     fontSize: 18,
     marginTop: 10,
     fontWeight: "bold",
     color: "#222",
   },
-
+ 
   button: {
     marginTop: 40,
     backgroundColor: "#39C5CC",
@@ -139,7 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-
+ 
   buttonText: {
     color: "white",
     fontSize: 18,

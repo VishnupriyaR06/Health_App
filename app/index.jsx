@@ -7,7 +7,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/UserScreen")}>
+      <TouchableOpacity style={styles.button} onPress={() => router.push("/Gender")}>
         <Text style={styles.text}>Gender</Text>
       </TouchableOpacity>
        
