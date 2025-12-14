@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
+/* ================= CALORIE CALC ================= */
 
 const calculateCalories = ({ age, gender, weight, height }) => {
   const bmr =
@@ -15,13 +17,15 @@ const calculateCalories = ({ age, gender, weight, height }) => {
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
-  const activityMultiplier = 1.55; // moderate (you can change later)
-
+  const activityMultiplier = 1.55;
   return Math.round(bmr * activityMultiplier);
 };
 
+/* ================= HOME ================= */
+
 export default function Home() {
   const { age, gender, weight, height } = useLocalSearchParams();
+  const router = useRouter();
 
   const dailyCalories = calculateCalories({
     age: Number(age),
@@ -30,13 +34,12 @@ export default function Home() {
     height: Number(height),
   });
 
-  const burnedCalories = 238; // example (steps/workout later)
+  const burnedCalories = 238;
   const progress = Math.min(
     (burnedCalories / dailyCalories) * 100,
     100
   );
 
-  
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
@@ -57,20 +60,20 @@ export default function Home() {
 
         <View style={styles.rowBetween}>
           <Text style={styles.smallText}>{burnedCalories}</Text>
-<Text style={styles.smallText}>{dailyCalories}</Text>
+          <Text style={styles.smallText}>{dailyCalories}</Text>
         </View>
 
-        {/* Progress Bar */}
+        {/* PROGRESS BAR */}
         <View style={styles.progressBg}>
           <View
-  style={[
-    styles.progressFill,
-    { width: `${progress}%` },
-  ]}
-/>
+            style={[
+              styles.progressFill,
+              { width: `${progress}%` },
+            ]}
+          />
         </View>
 
-        {/* Goals */}
+        {/* GOALS */}
         <View style={styles.goal}>
           <View style={styles.iconCircle} />
           <Text style={styles.goalText}>Goal Name</Text>
@@ -91,7 +94,14 @@ export default function Home() {
           <Exercise icon="walk-outline" label="Workout" />
           <Exercise icon="footsteps-outline" label="Step" />
           <Exercise icon="moon-outline" label="Sleep" />
-          <Exercise icon="water-outline" label="Water" />
+
+          {/* WATER NAVIGATION */}
+          <Exercise
+  icon="water-outline"
+  label="Water"
+  onPress={() => router.push("/Water")}
+/>
+
           <Exercise icon="add" label="Add" />
         </View>
       </View>
@@ -99,10 +109,15 @@ export default function Home() {
   );
 }
 
-/* EXERCISE BUTTON */
-function Exercise({ icon, label }) {
+/* ================= EXERCISE COMPONENT ================= */
+
+function Exercise({ icon, label, onPress }) {
   return (
-    <TouchableOpacity style={styles.exerciseItem}>
+    <TouchableOpacity
+      style={styles.exerciseItem}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View style={styles.exerciseIcon}>
         <Ionicons name={icon} size={22} color="#555" />
       </View>
@@ -177,7 +192,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   progressFill: {
-    width: "35%",
     height: "100%",
     backgroundColor: "#4FC3C7",
   },
