@@ -49,7 +49,7 @@ const scheduleNotifications = async () => {
         body: "Time to drink water 💧",
       },
       trigger: {
-        seconds: 55555555555555555555555555555555555555555555555550, // 1 hour
+        seconds: 60, // 1 hour
         repeats: true, // must be true to repeat
         type: "timeInterval", // required
       },

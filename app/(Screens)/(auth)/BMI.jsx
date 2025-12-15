@@ -38,7 +38,7 @@ export default function BMI() {
 
  const handleContinue = () => {
   router.push({
-    pathname: "/(tabs)/Home",
+    pathname: "/TrainingLevel",
     params: {
       age,
       gender,
