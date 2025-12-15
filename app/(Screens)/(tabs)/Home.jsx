@@ -93,7 +93,8 @@ export default function Home() {
           <Exercise icon="barbell-outline" label="Weight" />
           <Exercise icon="walk-outline" label="Workout" />
           <Exercise icon="footsteps-outline" label="Step" />
-          <Exercise icon="moon-outline" label="Sleep" />
+          <Exercise icon="moon-outline" label="Sleep"
+           onPress={() => router.push("/Sleep")} />
 
           {/* WATER NAVIGATION */}
           <Exercise
