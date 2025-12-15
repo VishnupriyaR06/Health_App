@@ -36,18 +36,17 @@ export default function BMI() {
     return t("obese");
   };
 
- const handleContinue = () => {
+const handleContinue = () => {
   router.push({
     pathname: "/TrainingLevel",
     params: {
-      age,
-      gender,
-      weight,
-      height,
+      age: age?.toString() || "",
+      gender: gender || "",
+      weight: weight?.toString() || "0",
+      height: height?.toString() || "0",
     },
   });
 };
-
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

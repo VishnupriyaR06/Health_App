@@ -5,6 +5,8 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import CircularProgress from "./components/CircularProgress";
 import AddWaterSheet from "./components/AddWaterSheet";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export default function Dashboard() {
   const [waterToday, setWaterToday] = useState(0);
@@ -27,10 +29,11 @@ export default function Dashboard() {
     if (goal) setDailyGoal(parseInt(goal));
   };
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadData();
-    scheduleNotifications();
-  }, []);
+  }, [])
+);
 
   const addWater = async (amount) => {
     const newTotal = waterToday + amount;
@@ -39,23 +42,30 @@ export default function Dashboard() {
   };
 
 const scheduleNotifications = async () => {
-  if (Device.isDevice) {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+  if (!Device.isDevice) return;
 
-    // Example: schedule notification every 1 hour
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Hydration Reminder",
-        body: "Time to drink water 💧",
-      },
-      trigger: {
-        seconds: 60, // 1 hour
-        repeats: true, // must be true to repeat
-        type: "timeInterval", // required
-      },
-    });
-  }
+  const alreadyScheduled = await AsyncStorage.getItem("notificationsScheduled");
+  if (alreadyScheduled) return;
+
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Hydration Reminder",
+      body: "Time to drink water 💧",
+    },
+   trigger: {
+  seconds: 3600, // 1 hour
+  repeats: true,
+}
+  });
+
+  await AsyncStorage.setItem("notificationsScheduled", "true");
 };
+
+  useEffect(() => {
+    scheduleNotifications();
+  }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
