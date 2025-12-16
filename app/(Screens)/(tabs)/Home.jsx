@@ -92,9 +92,10 @@ export default function Home() {
         <View style={styles.grid}>
           <Exercise icon="barbell-outline" label="Weight" />
           <Exercise icon="walk-outline" label="Workout" />
-          <Exercise icon="footsteps-outline" label="Step" />
+          <Exercise icon="footsteps-outline" label="Step" 
+            onPress={() => router.push("/Step/Goal")}/>
           <Exercise icon="moon-outline" label="Sleep"
-           onPress={() => router.push("/Sleep")} />
+           onPress={() => router.push("/Sleep/Login")} />
 
           {/* WATER NAVIGATION */}
           <Exercise
