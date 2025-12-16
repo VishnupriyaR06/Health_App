@@ -6,22 +6,31 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Welcome 👋</Text>
+      <Text style={styles.subtitle}>
+        Let’s get started by setting up your profile
+      </Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/Gender")}>
-        <Text style={styles.text}>Gender</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push("/(Screens)/(auth)/Register")}
+      >
+        <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
-       
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  title: { fontSize: 32, fontWeight: "bold" },
+  subtitle: { marginBottom: 30 },
   button: {
-    padding: 15,
     backgroundColor: "#39C5CC",
-    marginVertical: 10,
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: 12,
+    width: "80%",
+    alignItems: "center",
   },
-  text: { color: "white", fontSize: 20, fontWeight: "bold" },
+  buttonText: { color: "white", fontSize: 18 },
 });
