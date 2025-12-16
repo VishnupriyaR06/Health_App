@@ -99,7 +99,15 @@ export default function Home() {
           <Exercise
   icon="water-outline"
   label="Water"
-  onPress={() => router.push("/Water")}
+  onPress={() =>
+    router.push({
+      pathname: "/Water/dashboard",
+      params: {
+        height,
+        weight,
+      },
+    })
+  }
 />
 
           <Exercise icon="add" label="Add" />
