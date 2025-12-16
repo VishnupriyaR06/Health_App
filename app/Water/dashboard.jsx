@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,10 @@ import {
   StyleSheet,
   Alert,
   SafeAreaView,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 /* -------------------- QUICK BUTTON -------------------- */
@@ -65,19 +64,29 @@ export default function Dashboard() {
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [customInput, setCustomInput] = useState("");
   const [lastAddedAmount, setLastAddedAmount] = useState(0);
+  const [weight, setWeight] = useState(null);
+  const [height, setHeight] = useState(null);
 
-  /* ✅ GET PARAMS */
-  const { weight, height } = useLocalSearchParams();
-
-  /* ✅ CONVERT PARAMS */
-  const userWeight = weight ? Number(weight) : null;
-  const userHeight = height ? Number(height) : null;
+  const reminderRef = useRef(null);
 
   /* -------------------- LOAD DATA -------------------- */
   const loadData = async () => {
     try {
       const today = new Date().toDateString();
       const lastDate = await AsyncStorage.getItem("lastUpdatedDate");
+
+      const storedWeight = await AsyncStorage.getItem("userWeight");
+      const storedHeight = await AsyncStorage.getItem("userHeight");
+
+      const userWeight = storedWeight ? Number(storedWeight) : null;
+      const userHeight = storedHeight ? Number(storedHeight) : null;
+
+      setWeight(userWeight);
+      setHeight(userHeight);
+
+      const goal = userWeight && userWeight > 0 ? userWeight * 35 : 2000;
+      setDailyGoal(goal);
+      await AsyncStorage.setItem("dailyGoal", goal.toString());
 
       let water = await AsyncStorage.getItem("waterToday");
       water = water ? parseInt(water) : 0;
@@ -92,25 +101,17 @@ export default function Dashboard() {
 
       setWaterToday(water);
 
-      let goal = 2000;
-      if (userWeight && userWeight > 0) {
-        goal = userWeight * 35;
-      }
-
-      setDailyGoal(goal);
-      await AsyncStorage.setItem("dailyGoal", goal.toString());
-
       const lastAmt = await AsyncStorage.getItem("lastAddedAmount");
       setLastAddedAmount(lastAmt ? parseInt(lastAmt) : 0);
     } catch (err) {
-      console.error(err);
+      console.error("Load error:", err);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [userWeight])
+    }, [])
   );
 
   /* -------------------- ADD WATER -------------------- */
@@ -129,12 +130,12 @@ export default function Dashboard() {
     setCustomInput("");
 
     if (newTotal >= dailyGoal) {
-      Alert.alert("🎉 Goal Achieved!", "You reached your water goal!");
+      Alert.alert("🎉 Goal Achieved!", "You reached your daily water goal!");
     }
   };
 
   /* -------------------- REMOVE WATER -------------------- */
-  const removeWater = async () => {
+  const removeWater = () => {
     if (waterToday === 0) return;
 
     Alert.alert("Remove Water", "Choose amount", [
@@ -157,64 +158,53 @@ export default function Dashboard() {
     }
   };
 
-  /* -------------------- NOTIFICATIONS -------------------- */
-  const scheduleNotifications = async () => {
-    if (!Device.isDevice) return;
+  /* -------------------- HYDRATION REMINDER (NO EXPO NOTIFICATIONS) -------------------- */
+  const startHydrationReminder = async () => {
+    const alreadyStarted = await AsyncStorage.getItem("reminderStarted");
+    if (alreadyStarted) return;
 
-    const scheduled = await AsyncStorage.getItem("notificationsScheduled");
-    if (scheduled) return;
+    reminderRef.current = setInterval(() => {
+      Alert.alert("💧 Hydration Reminder", "Time to drink water!");
+    }, 2 * 60 * 60 * 1000); // every 2 hours
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "💧 Hydration Reminder",
-        body: "Time to drink water!",
-        sound: true,
-      },
-      trigger: { seconds: 7200, repeats: true },
-    });
-
-    await AsyncStorage.setItem("notificationsScheduled", "true");
+    await AsyncStorage.setItem("reminderStarted", "true");
   };
 
   useEffect(() => {
-    scheduleNotifications();
+    startHydrationReminder();
+    return () => reminderRef.current && clearInterval(reminderRef.current);
   }, []);
 
   const progress = waterToday / dailyGoal;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Hydration Tracker</Text>
         <Text style={styles.headerSubtitle}>
-          Height: {userHeight ?? "--"} cm | Weight: {userWeight ?? "--"} kg
+          Height: {height ?? "--"} cm | Weight: {weight ?? "--"} kg
         </Text>
       </View>
 
-      {/* PROGRESS */}
       <CircularProgress
         progress={progress}
         waterToday={waterToday}
         dailyGoal={dailyGoal}
       />
 
-      {/* STATS */}
       <View style={styles.statsContainer}>
         <Stat value={waterToday} label="ml consumed" />
-        <Stat value={dailyGoal - waterToday} label="ml remaining" />
-        <Stat value={`${userWeight ?? "--"} kg`} label="Weight" />
-        <Stat value={`${userHeight ?? "--"} cm`} label="Height" />
+        <Stat value={Math.max(0, dailyGoal - waterToday)} label="ml remaining" />
+        <Stat value={`${weight ?? "--"} kg`} label="Weight" />
+        <Stat value={`${height ?? "--"} cm`} label="Height" />
       </View>
 
-      {/* QUICK ADD */}
       <View style={styles.quickButtonsContainer}>
         {[150, 250, 500].map((amt) => (
           <QuickButton key={amt} amount={amt} onPress={addWater} />
         ))}
       </View>
 
-      {/* CUSTOM INPUT */}
       <View style={styles.customInputContainer}>
         <TextInput
           style={styles.customInput}
@@ -234,7 +224,6 @@ export default function Dashboard() {
         </TouchableOpacity>
       </View>
 
-      {/* REMOVE */}
       <TouchableOpacity style={styles.backspaceButton} onPress={removeWater}>
         <Text style={styles.backspaceButtonText}>
           <Ionicons name="backspace-outline" size={18} /> Remove Water
@@ -244,7 +233,7 @@ export default function Dashboard() {
   );
 }
 
-/* -------------------- STAT COMPONENT -------------------- */
+/* -------------------- STAT -------------------- */
 function Stat({ value, label }) {
   return (
     <View style={styles.statBox}>

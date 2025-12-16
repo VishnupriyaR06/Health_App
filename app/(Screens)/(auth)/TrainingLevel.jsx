@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,31 +7,67 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TrainingLevel() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const weight = params.weight; // from previous page
-  const height = params.height; // from previous page
-  const age = params.age;       // optional
-  const gender = params.gender; // optional
-
   const [selected, setSelected] = useState("Beginner");
   const levels = ["Beginner", "Intermediate", "Professional"];
 
-  const handleContinue = () => {
-    // Pass all values to next page
-    router.push({
-      pathname: "/(tabs)/Home",
-      params: {
-        weight: weight?.toString() || "0",
-        height: height?.toString() || "0",
-        age: age?.toString() || "",
-        gender: gender || "",
-        level: selected,
-      },
-    });
+  const [userData, setUserData] = useState({
+    weight: params.weight || "0",
+    height: params.height || "0",
+    age: params.age || "",
+    gender: params.gender || "",
+  });
+
+  // Load saved training level if exists
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedLevel = await AsyncStorage.getItem("userTrainingLevel");
+        if (storedLevel) setSelected(storedLevel);
+
+        const storedWeight = await AsyncStorage.getItem("userWeight");
+        const storedHeight = await AsyncStorage.getItem("userHeight");
+        const storedAge = await AsyncStorage.getItem("userAge");
+        const storedGender = await AsyncStorage.getItem("userGender");
+
+        setUserData({
+          weight: storedWeight || userData.weight,
+          height: storedHeight || userData.height,
+          age: storedAge || userData.age,
+          gender: storedGender || userData.gender,
+        });
+      } catch (error) {
+        console.log("Error loading data:", error);
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleContinue = async () => {
+    try {
+      // Save all data to AsyncStorage
+      await AsyncStorage.setItem("userTrainingLevel", selected);
+      await AsyncStorage.setItem("userWeight", userData.weight.toString());
+      await AsyncStorage.setItem("userHeight", userData.height.toString());
+      await AsyncStorage.setItem("userAge", userData.age.toString());
+      await AsyncStorage.setItem("userGender", userData.gender);
+
+      // Navigate to Home with params
+      router.push({
+        pathname: "/(tabs)/Home",
+        params: {
+          ...userData,
+          level: selected,
+        },
+      });
+    } catch (error) {
+      console.log("Error saving training level:", error);
+    }
   };
 
   return (

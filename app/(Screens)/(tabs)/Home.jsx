@@ -95,7 +95,7 @@ export default function Home() {
           <Exercise icon="footsteps-outline" label="Step" 
             onPress={() => router.push("/Step/Goal")}/>
           <Exercise icon="moon-outline" label="Sleep"
-           onPress={() => router.push("/Sleep/Login")} />
+           onPress={() => router.push("/Sleep/Time")} />
 
           {/* WATER NAVIGATION */}
           <Exercise

@@ -8,44 +8,57 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter,useLocalSearchParams } from "expo-router";   // 👈 ADD THIS
+import { useRouter, useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Weight() {
-  const router = useRouter();  
- 
+  const router = useRouter();
   const { gender, age } = useLocalSearchParams();
 
   const scrollRef = useRef(null);
   const [weight, setWeight] = useState(75);
   const [unit, setUnit] = useState("kg");
-  
-
 
   const itemWidth = 20;
   const max = 200;
   const screenWidth = Dimensions.get("window").width;
-
   const sidePadding = screenWidth / 2 - itemWidth / 2;
 
-  const onScroll = (event) => {
+  // Load stored weight on mount
+  useEffect(() => {
+    const loadWeight = async () => {
+      try {
+        const storedWeight = await AsyncStorage.getItem("userWeight");
+        if (storedWeight) {
+          const w = Number(storedWeight);
+          setWeight(w);
+          scrollRef.current?.scrollTo({ x: w * itemWidth, animated: false });
+        }
+      } catch (error) {
+        console.log("Error loading weight:", error);
+      }
+    };
+    loadWeight();
+  }, []);
+
+  const onScroll = async (event) => {
     const x = event.nativeEvent.contentOffset.x;
     const newValue = Math.round(x / itemWidth);
     const clamped = Math.max(0, Math.min(newValue, max - 1));
     setWeight(clamped);
-    console.log("Weight selected:", clamped);
-  };
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ x: weight * itemWidth, animated: false });
+    try {
+      await AsyncStorage.setItem("userWeight", clamped.toString());
+    } catch (error) {
+      console.log("Error saving weight:", error);
     }
-  }, []);
+  };
 
   const goToHeight = () => {
     router.push({
-      pathname:"/Height",
-      params:{gender,age,weight}
-    });   // 👈 MOVES TO HEIGHT SCREEN
+      pathname: "/Height",
+      params: { gender, age, weight },
+    });
   };
 
   return (
@@ -59,7 +72,9 @@ export default function Weight() {
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={styles.weightNumber}>{weight}</Text>
-          <Text style={{ fontSize: 20, paddingTop: 50, padding: 10 }}>Kg</Text>
+          <Text style={{ fontSize: 20, paddingTop: 50, padding: 10 }}>
+            {unit}
+          </Text>
         </View>
 
         <View style={styles.arrow} />
@@ -92,14 +107,18 @@ export default function Weight() {
             style={[styles.unitButton, unit === "lb" && styles.activeUnit]}
             onPress={() => setUnit("lb")}
           >
-            <Text style={[styles.unitText, unit === "lb" && styles.activeUnitText]}>lb</Text>
+            <Text style={[styles.unitText, unit === "lb" && styles.activeUnitText]}>
+              lb
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.unitButton, unit === "kg" && styles.activeUnit]}
             onPress={() => setUnit("kg")}
           >
-            <Text style={[styles.unitText, unit === "kg" && styles.activeUnitText]}>kg</Text>
+            <Text style={[styles.unitText, unit === "kg" && styles.activeUnitText]}>
+              kg
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -107,7 +126,6 @@ export default function Weight() {
         <TouchableOpacity style={styles.continueButton} onPress={goToHeight}>
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );

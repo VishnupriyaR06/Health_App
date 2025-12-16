@@ -44,6 +44,7 @@ export default function Login() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+
       <TextInput
         placeholder="Password"
         secureTextEntry
@@ -52,20 +53,38 @@ export default function Login() {
         style={styles.input}
       />
 
+      {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
+      {/* Register Link */}
       <TouchableOpacity onPress={() => router.push("/(Screens)/(auth)/Register")}>
         <Text style={styles.link}>Don’t have an account? Register</Text>
+      </TouchableOpacity>
+
+      {/* NEW BUTTON – Go to Gender */}
+      <TouchableOpacity
+        style={[styles.button, styles.genderButton]}
+        onPress={() => router.push("/(Screens)/(auth)/Gender")}
+      >
+        <Text style={styles.buttonText}>Go to Gender</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20 },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
   input: {
     backgroundColor: "#F1F5F9",
     padding: 15,
@@ -77,7 +96,18 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
     alignItems: "center",
+    marginTop: 10,
   },
-  buttonText: { color: "white", fontSize: 18 },
-  link: { textAlign: "center", marginTop: 20, color: "#39C5CC" },
+  genderButton: {
+    backgroundColor: "#4F46E5", // different color to identify
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+  },
+  link: {
+    textAlign: "center",
+    marginTop: 20,
+    color: "#39C5CC",
+  },
 });

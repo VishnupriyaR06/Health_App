@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router"; // <-- ADD THIS
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = 40;
@@ -16,35 +17,60 @@ const ITEM_WIDTH = 40;
 export default function Age() {
   const [age, setAge] = useState(28);
   const scrollRef = useRef();
-
-  const router = useRouter(); // <-- INITIALIZE ROUTER
+  const router = useRouter();
 
   const MIN = 10;
   const MAX = 80;
 
-  const onScroll = (event) => {
+  // Load stored age on mount
+  useEffect(() => {
+    const loadAge = async () => {
+      try {
+        const storedAge = await AsyncStorage.getItem("userAge");
+        if (storedAge) {
+          setAge(Number(storedAge));
+          // Scroll to stored age
+          scrollRef.current?.scrollTo({
+            x: (Number(storedAge) - MIN) * ITEM_WIDTH,
+            animated: false,
+          });
+        }
+      } catch (error) {
+        console.log("Error loading age:", error);
+      }
+    };
+    loadAge();
+  }, []);
+
+  const onScroll = async (event) => {
     const x = event.nativeEvent.contentOffset.x;
     const value = Math.round(x / ITEM_WIDTH) + MIN;
 
     if (value >= MIN && value <= MAX) {
       setAge(value);
+
+      try {
+        await AsyncStorage.setItem("userAge", value.toString()); // <-- Save age
+      } catch (error) {
+        console.log("Error saving age:", error);
+      }
     }
   };
 
   const handleContinue = () => {
-    router.push("/Weight");  // <-- NAVIGATE TO WEIGHT SCREEN
+    router.push("/Weight"); // Navigate to Weight screen
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        
         {/* Title */}
         <Text style={styles.title}>How Old Are You?</Text>
 
         {/* Subtitle */}
         <Text style={styles.subtitle}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </Text>
 
         {/* Selected age */}
@@ -70,7 +96,6 @@ export default function Age() {
           >
             {Array.from({ length: MAX - MIN + 1 }).map((_, i) => {
               const value = MIN + i;
-
               return (
                 <View key={i} style={styles.itemContainer}>
                   <Text
@@ -91,7 +116,6 @@ export default function Age() {
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );
