@@ -112,7 +112,9 @@ export default function Home() {
   }
 />
 
-          <Exercise icon="add" label="Add" />
+          {/* <Exercise icon="add" label="Add" /> */}
+            <Exercise icon="add" label="Add"
+           onPress={() => router.push("Trackers/Tracker")} />
         </View>
       </View>
     </SafeAreaView>
