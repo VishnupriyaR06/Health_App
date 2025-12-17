@@ -12,11 +12,15 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useRouter } from "expo-router";
+
+
 
 const THEME_COLOR = '#FF4B4B'; // Example fitness red/orange
 const BOT_AVATAR = '#333';
 
 export default function Chat() {
+   const router = useRouter(); 
   const [messages, setMessages] = useState([
     {
       id: '1',
@@ -99,10 +103,26 @@ export default function Chat() {
       <StatusBar barStyle="dark-content" />
 
       {/* Header */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>Fitness AI</Text>
         <Text style={styles.headerSubtitle}>Always here to help</Text>
-      </View>
+      </View> */}
+      <View style={styles.header}>
+  {/* Back Arrow */}
+  <TouchableOpacity onPress={() => router.replace("/Home")}>
+    <Ionicons name="arrow-back" size={24} color="#333" />
+  </TouchableOpacity>
+
+  {/* Title */}
+  <View style={styles.headerCenter}>
+    <Text style={styles.headerTitle}>Fitness AI</Text>
+    <Text style={styles.headerSubtitle}>Always here to help</Text>
+  </View>
+
+  {/* Spacer to keep title centered */}
+  <View style={{ width: 24 }} />
+</View>
+
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -246,4 +266,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+  flexDirection: "row",          // 👈 changed
+  alignItems: "center",
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  backgroundColor: "#FFF",
+  borderBottomWidth: 1,
+  borderBottomColor: "#EEE",
+  elevation: 3,
+},
+
+headerCenter: {
+  flex: 1,
+  alignItems: "center",
+},
+
 });
